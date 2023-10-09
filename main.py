@@ -9,14 +9,15 @@ import Graphics.gui
 pg.init()
 
 clock = pg.time.Clock()
-width, height = 1920, 1280
+width, height = 1920, 880
 screen = pg.display.set_mode((width, height), pg.FULLSCREEN)
 running = True
 font = pg.font.SysFont("sys", 80)
 
 particles = []
-buttons = []
-buttons.append(Graphics.gui.Button(pg.Rect(width/2-150,height/2-40, 300, 80), "PLAY", (255,255,255), (255,255,255)))
+gui_manager = Graphics.gui.GuiManager()
+
+gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-150,height/2-40, 300, 80), "PLAY", (255,255,255), (255,255,255), "play"))
 
 timer = 0
 timer2 = 0.5
@@ -66,9 +67,18 @@ while running:
             particles.remove(particle)
         particle.Draw(screen, timer2)
 
-    for button in buttons:
-        button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed(), dt)
-        button.Draw(screen)
+    gui_manager.Update(dt)
+    for button in gui_manager.buttons:
+        event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], dt)
+
+        if event != None:
+            match event:
+                case "play":
+                    gui_manager.Fade(0.5, "out")
+
+    gui_manager.Draw(screen)
+
+
 
     print(len(particles))
 

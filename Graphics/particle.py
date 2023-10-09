@@ -35,5 +35,6 @@ class Particle:
             pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel*2.5, self.size)
         elif (self.shape == "star"):
             pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel, 2)
-            pg.draw.line(screen, (self.colour[0]/2,self.colour[1]/2,self.colour[2]/2), self.pos-self.vel, self.pos-self.vel*2*star_speed, 1)
-            pg.draw.line(screen, (self.colour[0]/4,self.colour[1]/4,self.colour[2]/4), self.pos-self.vel*2* star_speed, self.pos-self.vel*5*(star_speed*2), 1)
+            pg.draw.line(screen, (self.colour[0]/2,self.colour[1]/2,self.colour[2]/2), self.pos-self.vel, self.pos-self.vel*2*star_speed, 2)
+            pg.draw.line(screen, (self.colour[0]/6,self.colour[1]/6,self.colour[2]/6), self.pos-self.vel*2* star_speed, self.pos-self.vel*5*(star_speed*2), 2)
+            pg.draw.line(screen, (self.colour[0]/15,self.colour[1]/15,self.colour[2]/15), self.pos-self.vel*5*(star_speed*2), self.pos-self.vel*7*(star_speed*2), 2)
