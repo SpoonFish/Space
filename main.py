@@ -9,8 +9,8 @@ import Graphics.gui
 pg.init()
 
 clock = pg.time.Clock()
-width, height = 1280, 960
-screen = pg.display.set_mode((width, height))
+width, height = 1920, 1280
+screen = pg.display.set_mode((width, height), pg.FULLSCREEN)
 running = True
 font = pg.font.SysFont("sys", 80)
 

@@ -6,11 +6,12 @@ pg.font.init()
 font = pg.font.SysFont("arial", 60)
 
 class Button:
-    def __init__(self, rect, text, colour, hov_colour):
+    def __init__(self, rect, text, colour, hov_colour, key):
         self.rect = pg.Rect(rect)
         self.pos = pg.Vector2(rect.x, rect.y)
         self.width, self.height = rect.width, rect.height
         self.text = text
+        self.key = key
         self.colour = colour
         self.hover_time = 0
         self.hov_colour = hov_colour
@@ -42,7 +43,7 @@ class Button:
         else:
             colour = self.colour
 
-        spread = pg.Vector2(25*math.sqrt(self.hover_time*5))
+        spread = pg.Vector2(15*math.pow(self.hover_time*5, 0.7))
         
         if self.hover_time >0:
             pg.draw.line(screen, colour, (self.pos.x+40,self.pos.y - spread.y), (self.pos.x+self.width,self.pos.y- spread.y), 2)
