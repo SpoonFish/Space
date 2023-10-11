@@ -2,6 +2,37 @@ import pygame as pg
 import random as rnd
 import math
 
+class ParticleManager:
+    def __init__(self):
+        self.particles = []
+        self.star_speed = 0.3
+        self.max_time = 0
+        self.speed_change_timer = 0
+        self.old_speed = 0
+        self.new_speed = 0
+
+    def Update(self, dt):
+        for particle in self.particles:
+            particle.Update(dt, self.star_speed, 1080)
+            if particle.remove:
+                self.particles.remove(particle)
+
+        
+        if self.speed_change_timer > 0:
+            self.speed_change_timer = min(self.speed_change_timer-dt,self.max_time)
+
+            self.star_speed = (self.new_speed-self.old_speed)*math.pow(1-self.speed_change_timer/self.max_time, 1.3)+self.old_speed
+
+    def Draw(self, screen):
+        for particle in self.particles:
+            particle.Draw(screen, self.star_speed)
+
+    def ChangeStarSpeed(self, new_speed, time):
+        self.max_time = time
+        self.speed_change_timer = time
+        self.old_speed = self.star_speed
+        self.new_speed = new_speed
+
 
 class Particle:
     def __init__(self, pos, vel, shape, size, colour, rotation_vel=0, rotation=0) -> None:
