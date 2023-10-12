@@ -3,6 +3,7 @@ import random as rnd
 import math
 import Graphics.particle
 import Entities.player
+import Entities.entity_manager
 import Graphics.gui
 
 
@@ -18,6 +19,7 @@ font = pg.font.SysFont("sys", 80)
 gui_manager = Graphics.gui.GuiManager()
 particle_manager = Graphics.particle.ParticleManager()
 player = Entities.player.Player()
+entity_manager = Entities.entity_manager.EntityManager()
 gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-150,height/2-40, 300, 80), "PLAY", (255,255,255), (255,255,255), "play"))
 
 timer = 0
@@ -28,12 +30,12 @@ for i in range(60):
         pg.Vector2(0,rnd.uniform(8,16)*(0.5+bright/2)),
         "star",
         2+1,
-        (255*bright,205*bright,205*bright)
+        (255*bright,205*bright,205*bright,255)
 
     ))
 
 while running:
-    dt = clock.tick(60)/1000
+    dt = clock.tick(120)/1000
     timer += dt
     
     for event in pg.event.get():
@@ -55,14 +57,15 @@ while running:
             pg.Vector2(0,rnd.uniform(8,16)*(0.5+bright/2)),
             "star",
             2+1,
-            (255*bright,205*bright,205*bright)
+            (255*bright,205*bright,205*bright,255)
 
         ))
 
     screen.fill("black")
 
     particle_manager.Update(dt)
-    player.Update(dt, keys)
+    player.Update(dt, keys, entity_manager)
+    entity_manager.Update(dt, particle_manager)
     gui_manager.Update(dt)
     for button in gui_manager.buttons:
         event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], dt)
@@ -75,8 +78,9 @@ while running:
                     player.SpawnIn()
 
     particle_manager.Draw(screen)
-    gui_manager.Draw(screen)
     player.Draw(screen)
+    entity_manager.Draw(screen)
+    gui_manager.Draw(screen)
 
 
 

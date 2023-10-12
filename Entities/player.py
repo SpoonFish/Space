@@ -9,28 +9,40 @@ class Player:
         self.fade_timer = 0
         self.speed = 5
         self.rnd_timer = 0
+        self.reload = 0.3
         self.surf = pg.surface.Surface((85,85)).convert_alpha()
         self.surf.set_alpha(255 * (1-self.opacity))
 
     def SpawnIn(self):
         self.fade_timer = 1 
 
-    def Update(self, dt, keys):
+    def Update(self, dt, keys, entity_manager):
         self.rnd_timer+=dt
+        self.reload -= dt
         if self.fade_timer > 0:
             self.fade_timer = max(self.fade_timer-dt, 0)
             self.opacity = 1-self.fade_timer
             self.pos = pg.Vector2(1920/2-37, 900)
             
+        move_by = pg.Vector2(0,0)
         if keys[pg.K_a]:
-            self.pos.x = max(20, self.pos.x-self.speed)
+            move_by.x = -5
         if keys[pg.K_d]:
-            self.pos.x = min(1900-75, self.pos.x+self.speed)
+            move_by.x = 5
         if keys[pg.K_w]:
-            self.pos.y = max(20, self.pos.y-self.speed)
+            move_by.y = -5
         if keys[pg.K_s]:
-            self.pos.y = min(1060-75, self.pos.y+self.speed)
+            move_by.y = 5
+        if move_by.x*move_by.y != 0:
+            move_by *= 2**0.5/2
+        if keys[pg.K_SPACE]:
+            if self.reload < 0:
+                self.reload = 0.3
+                entity_manager.CreatePlayerBullet(self.pos + pg.Vector2(37,37), move_by)
 
+        
+        self.pos.x = min(1900-75,max(20, self.pos.x+move_by.x*dt*60))
+        self.pos.y = min(1060-75,max(20, self.pos.y+move_by.y*dt*60))
 
     def R(self, x,y, strength=1):
         oldstate = random.getstate()
