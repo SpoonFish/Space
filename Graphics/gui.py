@@ -3,10 +3,13 @@ import math
 
 pg.font.init()
 
-font = pg.font.SysFont("arial", 60)
+font = pg.font.Font("Assets/font3.ttf",64)
 class GuiManager:
     def __init__(self):
+        self.timer = 0
         self.active = True
+        self.life_counter = LifeCounter()
+        self.falling_text = FallingText("WAVE 1")
         self.fade_timer = 0
         self.fade_max = 1
         self.fade_type = "none"
@@ -21,8 +24,13 @@ class GuiManager:
             self.opacity = 0
         else:
             self.opacity = 1
-
+    def SetFallingText(self, text):
+        self.falling_text.text = font.render(text, True, (60,50,50))
+        self.falling_text.y = -50
     def Update(self, dt):
+        self.timer += dt
+        self.falling_text.y += 3*60*dt
+
         if self.fade_timer > 0:
             self.fade_timer = min(self.fade_timer-dt,self.fade_max)
 
@@ -32,11 +40,65 @@ class GuiManager:
             else:
                 self.opacity = (self.fade_timer/self.fade_max)
 
-    def Draw(self, screen):
+    def Draw(self, screen, player_hp):
+        self.life_counter.Draw(screen, player_hp, self.timer)
         for button in self.buttons:
             button.Draw(screen, self.opacity)
 
+'''
+            pg.draw.line(self.surf, (255,255*self.P(1),255*self.P(1)), self.R(5,75),self.R(20,45), 2)
+            pg.draw.line(self.surf, (255,255*self.P(2),255*self.P(2)), self.R(5,75),self.R(0,40), 2)
+            pg.draw.line(self.surf, (255,255*self.P(3),255*self.P(3)), self.R(0,40),self.R(15,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(4),255*self.P(4)), self.R(75,40),self.R(60,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(5),255*self.P(5)), self.R(55,0),self.R(60,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(6),255*self.P(6)), self.R(20,0),self.R(15,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(7),255*self.P(7)), self.R(20,0),self.R(37,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(8),255*self.P(8)), self.R(55,0),self.R(37,20), 2)
+            pg.draw.line(self.surf, (255,255*self.P(9),255*self.P(9)), self.R(70,75),self.R(75,40), 2)
+            pg.draw.line(self.surf, (255,255*self.P(10),255*self.P(10)), self.R(70,75),self.R(55,45), 2)
+            pg.draw.line(self.surf, (255,255*self.P(11),255*self.P(11)), self.R(20,45),self.R(37,40), 2)
+            pg.draw.line(self.surf, (255,255*self.P(12),255*self.P(12)), self.R(37,40),self.R(55,45), 2)
+            pg.draw.circle(self.surf, (255,205,205), self.R(37,37,0.5), 11.1*math.sqrt(self.P(self.rnd_timer*'''
 
+class LifeCounter:
+    def __init__(self) -> None:
+        self.text = font.render("LIVES:", True, (60,50,50))
+        self.pos = pg.Vector2(12,1080-self.text.get_height())
+
+    def Draw(self, screen, lives, timer):
+        for i in range(5):
+            offset = pg.Vector2(self.text.get_width()+15+60*i,self.pos.y+2)
+            if i+1 < lives:
+                colour = (60,50,50)
+            elif i+1 == lives:
+                colour = (60+(70*(math.sin(timer*(5-i))+1)),50+(70*(math.sin(timer*(5-i))+1)*i/5),50+(70*(math.sin(timer*(5-i))+1)*i/5))
+
+            else:
+                colour = (20,15,15)
+
+            pg.draw.line(screen,colour, (3,50)+offset,(14,30)+offset, 2)
+            pg.draw.line(screen,colour, (3,50)+offset,(0,26)+offset, 2)
+            pg.draw.line(screen,colour, (0,26)+offset,(10,14)+offset,2)
+            pg.draw.line(screen,colour, (50,26)+offset,(40,14)+offset,2)
+            pg.draw.line(screen,colour, (36,0)+offset,(40,14)+offset,2)
+            pg.draw.line(screen,colour, (14,0)+offset,(10,14)+offset,2)
+            pg.draw.line(screen,colour, (14,0)+offset,(24,14)+offset,2)
+            pg.draw.line(screen,colour, (36,0)+offset,(24,14)+offset,2)
+            pg.draw.line(screen,colour, (47,50)+offset,(50,26)+offset,2)
+            pg.draw.line(screen,colour, (47,50)+offset,(36,30)+offset,2)
+            pg.draw.line(screen,colour, (14,30)+offset,(24,26)+offset,2)
+            pg.draw.line(screen,colour, (24,26)+offset,(36,30)+offset,2)
+        screen.blit(self.text, self.pos)
+
+
+class FallingText:
+    def __init__(self, text) -> None:
+        self.text = font.render(text, True, (60,50,50))
+        self.y = 1081
+
+    def Draw(self, screen):
+        if self.y < 1080:
+            screen.blit(self.text, (1920/2-self.text.get_width()/2, self.y))
 class Button:
     def __init__(self, rect, text, colour, hov_colour, key):
         self.rect = pg.Rect(rect)
@@ -108,5 +170,5 @@ class Button:
 
         self.rendered_text.set_alpha(255 * (1-opacity))
         self.line_surf.set_alpha(255 * (1-opacity))
-        screen.blit(self.rendered_text, self.text_pos+pg.Vector2(15,15))
+        screen.blit(self.rendered_text, self.text_pos+pg.Vector2(25,22))
         screen.blit(self.line_surf, self.pos)

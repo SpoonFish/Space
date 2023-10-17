@@ -23,6 +23,25 @@ class ParticleManager:
 
             self.star_speed = (self.new_speed-self.old_speed)*math.pow(1-self.speed_change_timer/self.max_time, 1.3)+self.old_speed
 
+    def CreateDeathSparks(self, pos):
+        for _ in range(rnd.randint(20,25)):
+            self.particles.append(Particle(pos,
+                                            pg.Vector2(rnd.uniform(-2,2),rnd.uniform(-1,1)),
+                                            "spark",
+                                            2,
+                                            (255,255,255,255),
+                                            rnd.uniform(0.5,0.7),
+                                            (55,55,255,0)))
+    def CreateHitSparks(self, pos):
+        for _ in range(rnd.randint(10,15)):
+            self.particles.append(Particle(pos,
+                                            pg.Vector2(rnd.uniform(-1,1),rnd.uniform(-1,1)),
+                                            "spark",
+                                            2,
+                                            (185,185,185,255),
+                                            rnd.uniform(0.25,0.5),
+                                            (255,255,255,0)))
+
     def Draw(self, screen):
         for particle in self.particles:
             particle.Draw(screen, self.star_speed)

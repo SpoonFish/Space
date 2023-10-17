@@ -4,11 +4,13 @@ import math
 import Graphics.particle
 import Entities.player
 import Entities.entity_manager
+import Entities.enemies
 import Graphics.gui
 
 
 #boiler plate usual stuff yk
 pg.init()
+
 
 clock = pg.time.Clock()
 width, height = 1920, 1080
@@ -18,10 +20,9 @@ font = pg.font.SysFont("sys", 80)
 
 gui_manager = Graphics.gui.GuiManager()
 particle_manager = Graphics.particle.ParticleManager()
-player = Entities.player.Player()
 entity_manager = Entities.entity_manager.EntityManager()
-gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-150,height/2-40, 300, 80), "PLAY", (255,255,255), (255,255,255), "play"))
-
+gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-190,height/2-40, 380, 80), "PLAY", (255,255,255), (255,255,255), "play"))
+timer3 = 0
 timer = 0
 for i in range(60):
     bright = rnd.uniform(0,1)
@@ -30,18 +31,22 @@ for i in range(60):
         pg.Vector2(0,rnd.uniform(8,16)*(0.5+bright/2)),
         "star",
         2+1,
-        (255*bright,205*bright,205*bright,255)
+        (205*bright,175*bright,175*bright,255)
 
     ))
+for i in range(0,2):
+    for j in range(0,2):
+        entity_manager.enemies.append(Entities.enemies.ShooterEnemy(pg.Vector2(100+i*70,j*70), "dasher", 3, 60, 60))
 
+entity_manager.enemies.append(Entities.enemies.DasherEnemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 60, 60))
 while running:
     dt = clock.tick(120)/1000
     timer += dt
+    timer3 += dt
     
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
-
 
     keys = pg.key.get_pressed()
    # if keys[pg.K_w]:
@@ -50,21 +55,27 @@ while running:
    #     particle_manager.star_speed = max(0.00000001, particle_manager.star_speed-dt)
 
     if timer > 0.06/particle_manager.star_speed:
-        bright = rnd.uniform(0,1)
+        bright = rnd.uniform(0,0.7)
         timer -=0.06/particle_manager.star_speed
         particle_manager.particles.append(Graphics.particle.Particle(
             pg.Vector2(rnd.randint(0, width), 0),
             pg.Vector2(0,rnd.uniform(8,16)*(0.5+bright/2)),
             "star",
             2+1,
-            (255*bright,205*bright,205*bright,255)
+            (205*bright,175*bright,175*bright,255)
 
         ))
+
+    if timer3 > 2:
+        timer3 -= 4
+        #entity_manager.enemies.append(Entities.enemies.DasherEnemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 60, 60))
+        
+        #entity_manager.enemies.append(Entities.enemies.Enemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 40, 40))
 
     screen.fill("black")
 
     particle_manager.Update(dt)
-    player.Update(dt, keys, entity_manager)
+    entity_manager.player.Update(dt, keys, entity_manager, particle_manager)
     entity_manager.Update(dt, particle_manager)
     gui_manager.Update(dt)
     for button in gui_manager.buttons:
@@ -74,13 +85,14 @@ while running:
             match event:
                 case "play":
                     gui_manager.Fade(0.5, "out")
+                    gui_manager.SetFallingText("WAVE 1")
                     particle_manager.ChangeStarSpeed(3, 2)
-                    player.SpawnIn()
+                    entity_manager.player.SpawnIn()
 
     particle_manager.Draw(screen)
-    player.Draw(screen)
+    gui_manager.falling_text.Draw(screen)
     entity_manager.Draw(screen)
-    gui_manager.Draw(screen)
+    gui_manager.Draw(screen, entity_manager.player.hp)
 
 
 

@@ -8,6 +8,10 @@ class Player:
         self.opacity = 0
         self.fade_timer = 0
         self.speed = 5
+        self.hp = 5
+        self.hit_time = 0
+        self.vel = pg.Vector2(0,0)
+        self.accel = pg.Vector2(0,0)
         self.rnd_timer = 0
         self.reload = 0.3
         self.surf = pg.surface.Surface((85,85)).convert_alpha()
@@ -16,33 +20,57 @@ class Player:
     def SpawnIn(self):
         self.fade_timer = 1 
 
-    def Update(self, dt, keys, entity_manager):
+    def Update(self, dt, keys, entity_manager, particle_manager):
         self.rnd_timer+=dt
         self.reload -= dt
+        self.hit_time = max(self.hit_time-dt, 0)
         if self.fade_timer > 0:
             self.fade_timer = max(self.fade_timer-dt, 0)
             self.opacity = 1-self.fade_timer
             self.pos = pg.Vector2(1920/2-37, 900)
             
-        move_by = pg.Vector2(0,0)
+        for projectile in entity_manager.enemy_projectiles:
+            if self.hit_time == 0 and pg.Rect(self.pos.x, self.pos.y, 75,75).collidepoint(projectile.pos):
+                self.hit_time = 0.5
+                projectile.remove = True
+                particle_manager.CreateHitSparks(projectile.pos)
+                self.hp -= 1
+
+        self.accel = pg.Vector2(0,0)
         if keys[pg.K_a]:
-            move_by.x = -5
+            self.accel.x = -1
         if keys[pg.K_d]:
-            move_by.x = 5
+            self.accel.x = 1
         if keys[pg.K_w]:
-            move_by.y = -5
+            self.accel.y = -1
         if keys[pg.K_s]:
-            move_by.y = 5
-        if move_by.x*move_by.y != 0:
-            move_by *= 2**0.5/2
+            self.accel.y = 1
+        if self.accel.x*self.accel.y != 0:
+            self.accel *= 0.7
+
+        self.vel += self.accel*60*dt
+        if self.vel.x > 8:
+            self.vel.x = 8
+        elif self.vel.x < -8:
+            self.vel.x = -8
+        if self.vel.y > 8:
+            self.vel.y = 8
+        elif self.vel.y < -8:
+            self.vel.y = -8
+        
+        if self.accel.x == 0:
+            self.vel.x /= 1.1
+        if self.accel.y == 0:
+            self.vel.y /= 1.1
+
         if keys[pg.K_SPACE]:
             if self.reload < 0:
                 self.reload = 0.3
-                entity_manager.CreatePlayerBullet(self.pos + pg.Vector2(37,37), move_by)
+                entity_manager.CreatePlayerBullet(self.pos + pg.Vector2(37,37), self.vel)
 
         
-        self.pos.x = min(1900-75,max(20, self.pos.x+move_by.x*dt*60))
-        self.pos.y = min(1060-75,max(20, self.pos.y+move_by.y*dt*60))
+        self.pos.x = min(1900-75,max(20, self.pos.x+self.vel.x*dt*60))
+        self.pos.y = min(1060-75,max(20, self.pos.y+self.vel.y*dt*60))
 
     def R(self, x,y, strength=1):
         oldstate = random.getstate()
@@ -54,6 +82,8 @@ class Player:
         return (x+add_x*strength+5,y+add_y*strength+5)
     
     def P(self, k):
+        if round(self.hit_time*20)%4>1:
+            return 0
         return min(1,((math.sin(self.rnd_timer+k)+1)/2+2)/3)
 
     def Draw(self,screen):
