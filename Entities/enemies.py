@@ -4,7 +4,7 @@ import math
 
 class Enemy:
     def __init__(self, pos, type, hp, width,height) -> None:
-        self.pos = pg.Vector2(pos)
+        self.pos = pg.Vector2(pos.x-width/2,pos.y)
         self.width = width
         self.height = height
         self.vel = pg.Vector2(0,3)
@@ -112,12 +112,12 @@ class DasherEnemy(Enemy):
                 self.direction = self.target_direction
                 self.charging = True
                 self.rotating = False
-                self.vel = (self.target_pos-self.pos).normalize()*5
+                self.vel = (self.target_pos-self.pos).normalize()*8
 
         if self.charging:
             self.charge_time -= dt
             if self.charge_time < 0:
-                self.charge_time = 2
+                self.charge_time = 3
                 self.charging = False
                 self.vel = pg.Vector2(0,0)
                 self.target_pos = pg.Vector2(random.randint(0,1920),random.randint(0,1080))
@@ -137,7 +137,6 @@ class DasherEnemy(Enemy):
             self.rotating = True
             self.vel = pg.Vector2(0,0)
             pass
-        print(self.direction)
         if self.hp <= 0:
             self.remove = True
 

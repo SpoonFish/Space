@@ -8,6 +8,7 @@ class GuiManager:
     def __init__(self):
         self.timer = 0
         self.active = True
+        self.buttons_active = True
         self.life_counter = LifeCounter()
         self.falling_text = FallingText("WAVE 1")
         self.fade_timer = 0
@@ -22,8 +23,10 @@ class GuiManager:
         self.fade_timer = time
         if fade_type == "out":
             self.opacity = 0
+            self.buttons_active = False
         else:
             self.opacity = 1
+            self.buttons_active = False
     def SetFallingText(self, text):
         self.falling_text.text = font.render(text, True, (60,50,50))
         self.falling_text.y = -50
@@ -115,12 +118,15 @@ class Button:
         self.rendered_text = font.render(text, True, colour)
         self.text_pos = self.pos + pg.Vector2((self.width-self.rendered_text.get_width())/2,(self.height-self.rendered_text.get_height())/2)
 
-    def Update(self, mouse_pos, pressed, dt):
+    def Update(self, mouse_pos, pressed, dt, active):
         if self.rect.collidepoint(mouse_pos):
             self.hovered = True
             if pressed:
-                self.clicked = True
-                return self.key
+                if active:
+                    self.clicked = True
+                    return self.key
+                else:
+                    self.clicked = False
             else: 
                 self.clicked = False
         else:

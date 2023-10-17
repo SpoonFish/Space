@@ -34,11 +34,6 @@ for i in range(60):
         (205*bright,175*bright,175*bright,255)
 
     ))
-for i in range(0,2):
-    for j in range(0,2):
-        entity_manager.enemies.append(Entities.enemies.ShooterEnemy(pg.Vector2(100+i*70,j*70), "dasher", 3, 60, 60))
-
-entity_manager.enemies.append(Entities.enemies.DasherEnemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 60, 60))
 while running:
     dt = clock.tick(120)/1000
     timer += dt
@@ -76,18 +71,18 @@ while running:
 
     particle_manager.Update(dt)
     entity_manager.player.Update(dt, keys, entity_manager, particle_manager)
-    entity_manager.Update(dt, particle_manager)
+    entity_manager.Update(dt, particle_manager, gui_manager)
     gui_manager.Update(dt)
     for button in gui_manager.buttons:
-        event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], dt)
+        event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], dt, gui_manager.buttons_active)
 
         if event != None:
             match event:
                 case "play":
                     gui_manager.Fade(0.5, "out")
-                    gui_manager.SetFallingText("WAVE 1")
                     particle_manager.ChangeStarSpeed(3, 2)
                     entity_manager.player.SpawnIn()
+                    entity_manager.SummonWave(1, gui_manager)
 
     particle_manager.Draw(screen)
     gui_manager.falling_text.Draw(screen)
