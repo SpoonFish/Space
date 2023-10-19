@@ -28,6 +28,8 @@ class EntityManager:
                     self.enemies.append(Entities.enemies.DasherEnemy(pos, "dasher", enemy.hp, 60,60))
                 case "shooter":
                     self.enemies.append(Entities.enemies.ShooterEnemy(pos, "shooter", enemy.hp, 60,60))
+                case "burster":
+                    self.enemies.append(Entities.enemies.BursterEnemy(pos, "burster", enemy.hp, 60,60))
 
 
     def CreateEnemyBullet(self, pos, vel):

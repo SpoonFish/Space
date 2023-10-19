@@ -35,6 +35,14 @@ class Player:
                 projectile.remove = True
                 particle_manager.CreateHitSparks(projectile.pos)
                 self.hp -= 1
+            
+        for enemy in entity_manager.enemies:
+            if self.hit_time == 0 and pg.Rect(self.pos.x, self.pos.y, 75,75).colliderect(pg.Rect(enemy.pos.x,enemy.pos.y,enemy.width,enemy.height)):
+                self.hit_time = 0.8
+                particle_manager.CreateHitSparks(self.pos+pg.Vector2(38,38))
+                self.hp -= 1
+                enemy.hit_time = 0.8
+                enemy.hp -= 1
 
         self.accel = pg.Vector2(0,0)
         if keys[pg.K_a]:

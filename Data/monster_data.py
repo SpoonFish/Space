@@ -19,8 +19,8 @@ WAVES = {
     2: WaveData([
         [(3,0), MonsterData("shooter",2)],
         [(4,0), MonsterData("dasher",2)],
+        [(10,0), MonsterData("burster",5)],
         [(8,0), MonsterData("dasher",2)],
-        [(6,0), MonsterData("dasher",2)],
         [(9,0), MonsterData("shooter",2)],
     ]),
     3: WaveData([
