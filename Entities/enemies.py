@@ -219,32 +219,37 @@ class BursterEnemy(Enemy):
     def __init__(self, pos, type, hp, width,height) -> None:
         super().__init__(pos, type, hp, width,height)
         self.range = 300
-        self.direction = 0
-        self.accel = pg.Vector2(0,0)
+        self.direction = 1
+        self.turn_cooldown = 0
         self.stage = 1
         self.shoot_time = 2
         self.vel = pg.Vector2(0,2)
 
     def UniqueUpdate(self, dt, entity_manager, particle_manager):
         self.shoot_time -= dt
+        self.turn_cooldown -= dt
         if self.stage == 1:
             self.vel /= 1.01
             if self.vel.y < 0.1:
                 self.stage = 2
         elif self.stage == 2:
             self.vel.y = math.sin(self.rnd_timer*8)
-            if self.pos.x < 1920/2-30:
-                self.accel.x = 0.05
-            else:
-                self.accel.x = -0.05
 
-        self.vel += self.accel *60*dt
-        limited_vel = pg.Vector2(max(-3,min(3,self.vel.x)), self.vel.y)
+            if self.pos.x < 30:
+                self.direction = 1
+            elif self.pos.x > 1920-30:
+                self.direction = 0
 
-        if self.shoot_time < 0 and abs(self.pos.x-entity_manager.player.pos.x) < 200:
-            self.shoot_time = 0.1
-            entity_manager.CreateEnemyBullet(self.pos+ pg.Vector2(self.width/2,self.height/2), self.vel)
-            limited_vel.x*=2
+        if self.direction == 1:
+            self.vel.x = 3
+        if self.direction == 0:
+            self.vel.x = -3
+        limited_vel = self.vel
+        if self.shoot_time < 0 and abs(self.pos.x-entity_manager.player.pos.x) < 350:
+            self.shoot_time = 0.2
+            entity_manager.CreateEnemyBullet(self.pos+ pg.Vector2(self.width/2,self.height/2), pg.Vector2(random.uniform(-16,16),random.uniform(-4,4)), "burst")
+        if abs(self.pos.x-entity_manager.player.pos.x) < 350:
+            limited_vel.x *= 2
 
         self.pos += limited_vel *60*dt
 

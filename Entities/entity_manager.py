@@ -32,8 +32,12 @@ class EntityManager:
                     self.enemies.append(Entities.enemies.BursterEnemy(pos, "burster", enemy.hp, 60,60))
 
 
-    def CreateEnemyBullet(self, pos, vel):
-        self.enemy_projectiles.append(Entities.projectiles.EnemyBullet(pos, vel))
+    def CreateEnemyBullet(self, pos, vel, type = "normal"):
+        match type:
+            case "normal":
+                self.enemy_projectiles.append(Entities.projectiles.EnemyBullet(pos, vel))
+            case "burst":
+                self.enemy_projectiles.append(Entities.projectiles.EnemyBurstBullet(pos, vel))
 
     def Update(self, dt, particle_manager, gui_manager):
         for projectile in self.player_projectiles:
