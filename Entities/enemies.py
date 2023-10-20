@@ -3,14 +3,13 @@ import random
 import math
 
 class Enemy:
-    def __init__(self, pos, type, hp, width,height) -> None:
+    def __init__(self, pos, hp, width,height) -> None:
         self.end_of_init_pos = pg.Vector2(pos.x-width/2,pos.y)
         self.pos = pg.Vector2(pos.x-width/2,-100)
         self.width = width
         self.height = height
         self.initialise_time = 0
         self.vel = pg.Vector2(0,3)
-        self.type = type
         self.hp = hp
         self.direction = 0
         self.hit_time = 0
@@ -85,8 +84,8 @@ class Enemy:
         screen.blit(self.surf, self.pos-pg.Vector2(self.width*0.25,self.width*0.25))
 
 class DasherEnemy(Enemy):
-    def __init__(self, pos, type, hp, width,height) -> None:
-        super().__init__(pos, type, hp, width,height)
+    def __init__(self, pos, hp, width,height) -> None:
+        super().__init__(pos, hp, width,height)
         self.range = 300
         self.direction = 0
         self.charge_time = 2
@@ -165,8 +164,8 @@ class DasherEnemy(Enemy):
 
 
 class ShooterEnemy(Enemy):
-    def __init__(self, pos, type, hp, width,height) -> None:
-        super().__init__(pos, type, hp, width,height)
+    def __init__(self, pos, hp, width,height) -> None:
+        super().__init__(pos, hp, width,height)
         self.range = 300
         self.direction = 0
         self.accel = pg.Vector2(0,0)
@@ -216,40 +215,81 @@ class ShooterEnemy(Enemy):
         screen.blit(self.surf, self.pos-pg.Vector2(self.width*0.25,self.width*0.25))
 
 class BursterEnemy(Enemy):
-    def __init__(self, pos, type, hp, width,height) -> None:
-        super().__init__(pos, type, hp, width,height)
+    def __init__(self, pos, hp, width,height) -> None:
+        super().__init__(pos, hp, width,height)
         self.range = 300
-        self.direction = 1
-        self.turn_cooldown = 0
-        self.stage = 1
+        self.burst_cooldown = 0
+        self.burst_time = 0
         self.shoot_time = 2
-        self.vel = pg.Vector2(0,2)
+        self.vel = pg.Vector2(random.uniform(2,3), 0)
 
     def UniqueUpdate(self, dt, entity_manager, particle_manager):
         self.shoot_time -= dt
-        self.turn_cooldown -= dt
-        if self.stage == 1:
-            self.vel /= 1.01
-            if self.vel.y < 0.1:
-                self.stage = 2
-        elif self.stage == 2:
-            self.vel.y = math.sin(self.rnd_timer*8)
+        self.burst_time -= dt
+        self.burst_cooldown -= dt
+        self.vel.y = math.sin(self.rnd_timer*8)
 
-            if self.pos.x < 30:
-                self.direction = 1
-            elif self.pos.x > 1920-30:
-                self.direction = 0
-
-        if self.direction == 1:
+        if self.pos.x < 30:
             self.vel.x = 3
-        if self.direction == 0:
+        elif self.pos.x > 1920-90:
             self.vel.x = -3
-        limited_vel = self.vel
-        if self.shoot_time < 0 and abs(self.pos.x-entity_manager.player.pos.x) < 350:
-            self.shoot_time = 0.2
+
+        if abs(self.pos.x-entity_manager.player.pos.x) < 250 and self.burst_cooldown < 0:
+            self.burst_time = 0.6
+            self.burst_cooldown = 2.7
+
+        limited_vel = pg.Vector2(self.vel.x,self.vel.y)
+        if self.shoot_time < 0 and self.burst_time > 0:
+            self.shoot_time = 0.078
             entity_manager.CreateEnemyBullet(self.pos+ pg.Vector2(self.width/2,self.height/2), pg.Vector2(random.uniform(-16,16),random.uniform(-4,4)), "burst")
-        if abs(self.pos.x-entity_manager.player.pos.x) < 350:
-            limited_vel.x *= 2
+        if self.burst_time > 0:
+            limited_vel.x *= 4
+
+        self.pos += limited_vel *60*dt
+
+
+
+    def Draw(self,screen):
+        self.surf.fill((0,0,0,0))
+        #pg.draw.rect(self.surf, (255,245,245), pg.Rect(0,0, 75,75), 2, 0,35,35,0)
+        pg.draw.circle(self.surf, (240,240,255,60), self.R(self.width/2,self.height/2,0.5), 20.1*self.P(self.rnd_timer*6)**0.5)
+        pg.draw.circle(self.surf, (240,240,255,128), self.R(self.width/2,self.height/2,0.5), 14.1*self.P(self.rnd_timer*5)**0.5)
+        
+        pg.draw.line(self.surf, (255*self.P(1),255*self.P(1),255), self.R(0,0),self.R(self.width*0.35,self.height), 2)
+        pg.draw.line(self.surf, (255*self.P(1),255*self.P(1),255), self.R(self.width*0.5,self.height*0.8),self.R(self.width*0.35,self.height), 2)
+        pg.draw.line(self.surf, (255*self.P(2),255*self.P(2),255), self.R(self.width*0.65,self.height),self.R(self.width*0.5,self.height*0.8), 2)
+        pg.draw.line(self.surf, (255*self.P(2),255*self.P(2),255), self.R(self.width*0.65,self.height),self.R(self.width,0), 2)
+        pg.draw.line(self.surf, (255*self.P(3),255*self.P(3),255), self.R(0,0),self.R(self.width/2,self.height*0.25), 2)
+        pg.draw.line(self.surf, (255*self.P(4),255*self.P(4),255), self.R(self.width/2,self.height*0.25),self.R(self.width,0), 2)
+
+        pg.draw.circle(self.surf, (205,205,255), self.R(self.width/2,self.height/2,0.5), 11.1*math.sqrt(self.P(self.rnd_timer*4)))
+        pg.draw.circle(self.surf, (255,255,255), self.R(self.width/2,self.height/2,0.5), 6.1*math.sqrt(self.P(self.rnd_timer*3)))
+
+
+        self.surf.set_alpha(255)
+        screen.blit(self.surf, self.pos-pg.Vector2(self.width*0.25,self.width*0.25))
+
+        
+class BolaEnemy(Enemy):
+    def __init__(self, pos, hp, width,height) -> None:
+        super().__init__(pos, hp, width,height)
+        self.shoot_time = 2
+        self.vel = pg.Vector2(random.uniform(2,3), 0)
+
+    def UniqueUpdate(self, dt, entity_manager, particle_manager):
+        self.shoot_time -= dt
+
+        if self.pos.x < 30:
+            self.vel.x = 3
+        elif self.pos.x > 1920-90:
+            self.vel.x = -3
+
+
+        limited_vel = pg.Vector2(self.vel.x,self.vel.y)
+        if self.shoot_time < 0:
+            self.shoot_time = 1
+            entity_manager.CreateEnemyBullet(self.pos+ pg.Vector2(self.width/2,self.height/2), pg.Vector2(random.uniform(-8,8),0), "bola")
+       
 
         self.pos += limited_vel *60*dt
 

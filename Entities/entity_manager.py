@@ -25,11 +25,13 @@ class EntityManager:
             enemy = wave.enemies[i][1]
             match enemy.type:
                 case "dasher":
-                    self.enemies.append(Entities.enemies.DasherEnemy(pos, "dasher", enemy.hp, 60,60))
+                    self.enemies.append(Entities.enemies.DasherEnemy(pos, enemy.hp, 60,60))
                 case "shooter":
-                    self.enemies.append(Entities.enemies.ShooterEnemy(pos, "shooter", enemy.hp, 60,60))
+                    self.enemies.append(Entities.enemies.ShooterEnemy(pos, enemy.hp, 60,60))
                 case "burster":
-                    self.enemies.append(Entities.enemies.BursterEnemy(pos, "burster", enemy.hp, 60,60))
+                    self.enemies.append(Entities.enemies.BursterEnemy(pos, enemy.hp, 60,60))
+                case "bola":
+                    self.enemies.append(Entities.enemies.BolaEnemy(pos, enemy.hp, 60,60))
 
 
     def CreateEnemyBullet(self, pos, vel, type = "normal"):
@@ -38,6 +40,8 @@ class EntityManager:
                 self.enemy_projectiles.append(Entities.projectiles.EnemyBullet(pos, vel))
             case "burst":
                 self.enemy_projectiles.append(Entities.projectiles.EnemyBurstBullet(pos, vel))
+            case "bola":
+                self.enemy_projectiles.append(Entities.projectiles.EnemyBolaBullet(pos, vel))
 
     def Update(self, dt, particle_manager, gui_manager):
         for projectile in self.player_projectiles:
@@ -45,7 +49,7 @@ class EntityManager:
             if projectile.remove:
                 self.player_projectiles.remove(projectile)
         for projectile in self.enemy_projectiles:
-            projectile.Update(dt, particle_manager)
+            projectile.Update(dt, particle_manager, self)
             if projectile.remove:
                 self.enemy_projectiles.remove(projectile)
 

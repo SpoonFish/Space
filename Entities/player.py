@@ -30,9 +30,10 @@ class Player:
             self.pos = pg.Vector2(1920/2-37, 900)
             
         for projectile in entity_manager.enemy_projectiles:
-            if self.hit_time == 0 and pg.Rect(self.pos.x, self.pos.y, 75,75).collidepoint(projectile.pos):
+            if self.hit_time == 0 and projectile.Collide(pg.Rect(self.pos.x, self.pos.y, 75,75)):
                 self.hit_time = 0.5
-                projectile.remove = True
+                if projectile.breaks_on_hit:
+                    projectile.remove = True
                 particle_manager.CreateHitSparks(projectile.pos)
                 self.hp -= 1
             

@@ -11,10 +11,11 @@ class WaveData:
 
 WAVES = {
     1: WaveData([
-        [(3,0), MonsterData("burster",2)],
-        [(4,0), MonsterData("burster",2)],
-        [(8,0), MonsterData("burster",2)],
-        [(9,0), MonsterData("burster",2)],
+        [(3,0), MonsterData("bola",5)],
+        [(5,0), MonsterData("bola",5)],
+        [(8,0), MonsterData("bola",5)],
+        [(5,0), MonsterData("bola",5)],
+        [(8,0), MonsterData("bola",5)],
     ]),
     2: WaveData([
         [(3,0), MonsterData("shooter",2)],
