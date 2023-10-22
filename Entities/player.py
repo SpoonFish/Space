@@ -1,6 +1,7 @@
 import pygame as pg
 import random
 import math
+import Entities.enemies
 
 class Player:
     def __init__(self) -> None:
@@ -44,6 +45,9 @@ class Player:
                 self.hp -= 1
                 enemy.hit_time = 0.8
                 enemy.hp -= 1
+                if isinstance(enemy, Entities.enemies.AsteroidEnemy):
+                    enemy.hp = 0
+                    enemy.hit_time = 0.3
 
         self.accel = pg.Vector2(0,0)
         if keys[pg.K_a]:
@@ -55,7 +59,7 @@ class Player:
         if keys[pg.K_s]:
             self.accel.y = 1
         if self.accel.x*self.accel.y != 0:
-            self.accel *= 0.7
+            self.accel /= 1+0.3*(dt*60)**2
 
         self.vel += self.accel*60*dt
         if self.vel.x > 8:
@@ -68,18 +72,18 @@ class Player:
             self.vel.y = -8
         
         if self.accel.x == 0:
-            self.vel.x /= 1.1
+            self.vel.x /= 1+.1*(dt*60)**2
         if self.accel.y == 0:
-            self.vel.y /= 1.1
+            self.vel.y /= 1+.1*(dt*60)**2
 
         if keys[pg.K_SPACE]:
             if self.reload < 0:
-                self.reload = 0.3
+                self.reload = 0.4
                 entity_manager.CreatePlayerBullet(self.pos + pg.Vector2(37,37), self.vel)
 
         
         self.pos.x = min(1900-75,max(20, self.pos.x+self.vel.x*dt*60))
-        self.pos.y = min(1060-75,max(20, self.pos.y+self.vel.y*dt*60))
+        self.pos.y = min(1060-75,max(150, self.pos.y+self.vel.y*dt*60))
 
     def R(self, x,y, strength=1):
         oldstate = random.getstate()

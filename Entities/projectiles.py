@@ -71,6 +71,44 @@ class EnemyBullet:
         pg.draw.rect(screen, (100,100,255,100), pg.Rect(self.pos.x-6,self.pos.y-7,12,20), 0, 5)
         pg.draw.rect(screen, (225,225,255), pg.Rect(self.pos.x-4,self.pos.y-5,8,16), 0, 5)
 
+
+class EnemyStarBullet:
+    def __init__(self, pos, influencing_vel) -> None:
+        self.pos = pg.Vector2(pos.x,pos.y)
+        self.timer = 0
+        self.lifetime = 6.5
+        self.breaks_on_hit = True
+        self.particle_reload = 0.015
+        self.remove = False
+        self.vel = influencing_vel
+
+    def Collide(self, rect):
+        return rect.collidepoint(self.pos)
+
+    def Update(self, dt, particle_manager, entity_manager):
+        self.timer += dt
+        self.particle_reload -= dt
+        while self.particle_reload < 0:
+            self.particle_reload += 0.05
+            particle_manager.particles.append(Graphics.particle.Particle(self.pos,
+                                                                         pg.Vector2(0,0),
+                                                                         "burst_ball",
+                                                                         2,
+                                                                         (145,145,145,255),
+                                                                         rnd.uniform(0.08,0.1),
+                                                                         (100,100,185,0))
+
+        )
+         
+            
+        if self.timer > self.lifetime:
+            self.remove = True
+        self.pos += self.vel*(dt*60)
+
+    def Draw(self, screen):
+        pg.draw.circle(screen, (70,70,170), self.pos, 8)
+        pg.draw.circle(screen, (225,225,225), self.pos, 6)
+
 class EnemyBurstBullet(EnemyBullet):
     def __init__(self, pos, influencing_vel) -> None:
         self.pos = pg.Vector2(pos.x,pos.y)
@@ -85,13 +123,13 @@ class EnemyBurstBullet(EnemyBullet):
         self.timer += dt
         self.particle_reload -= dt
         while self.particle_reload < 0:
-            self.particle_reload += 0.1
+            self.particle_reload += 0.05
             particle_manager.particles.append(Graphics.particle.Particle(self.pos,
-                                                                         pg.Vector2(rnd.uniform(-0.5,0.5),rnd.uniform(-0,-1)),
-                                                                         "spark",
+                                                                         pg.Vector2(0,0),
+                                                                         "burst_ball",
                                                                          2,
-                                                                         (185,185,185,255),
-                                                                         rnd.uniform(0.1,0.25),
+                                                                         (145,145,145,255),
+                                                                         rnd.uniform(0.08,0.1),
                                                                          (100,100,185,0))
 
         )
@@ -99,7 +137,7 @@ class EnemyBurstBullet(EnemyBullet):
         if self.timer > self.lifetime:
             self.remove = True
         self.pos += self.vel*dt*60
-        self.vel *= 0.997
+        self.vel /= 1+.005*(dt*60)**2
 
     def Draw(self, screen):
         pg.draw.circle(screen, (100,100,150), self.pos, 8)
@@ -115,7 +153,7 @@ class EnemyBolaBullet:
         self.breaks_on_hit = False
         self.particle_reload = 0.1
         self.remove = False
-        self.joint_vel = pg.Vector2(rnd.uniform(-1,1),4+influencing_vel.y/2)
+        self.joint_vel = pg.Vector2(rnd.uniform(-1,1)+influencing_vel.x,4+influencing_vel.y/2)
         self.vel = pg.Vector2(rnd.uniform(-3,3),rnd.uniform(-1,1))
         self.vel2 = pg.Vector2(rnd.uniform(-3,3),rnd.uniform(-1,1))
 
@@ -128,7 +166,7 @@ class EnemyBolaBullet:
     def Update(self, dt, particle_manager, entity_manager):
         
         for projectile in entity_manager.player_projectiles:
-            if self.Collide(pg.Rect(projectile.pos.x-8,projectile.pos.y-8,16,16)):
+            if self.Collide(pg.Rect(projectile.pos.x-10,projectile.pos.y-8,20,30*60*dt)):
                 projectile.remove = True
                 particle_manager.CreateHitSparks(projectile.pos)
         self.timer += dt
@@ -138,8 +176,9 @@ class EnemyBolaBullet:
             self.remove = True
         self.pos += (self.vel+self.joint_vel)*dt*60
         self.pos2 += (self.vel2+self.joint_vel)*dt*60
-        self.vel *= 0.99
-        self.vel2 *= 0.99
+        self.vel /= 1+.01*(dt*60)**2
+        self.joint_vel.x /= 1+.02*(dt*60)**2
+        self.vel2 /= 1+.01*(dt*60)**2
 
     def Draw(self, screen):
         pg.draw.circle(screen, (70,70,150), self.pos, 8)

@@ -35,7 +35,7 @@ for i in range(60):
 
     ))
 while running:
-    dt = clock.tick(120)/1000
+    dt = clock.tick(1000)/1000
     timer += dt
     timer3 += dt
     
