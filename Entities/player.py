@@ -10,7 +10,10 @@ class Player:
         self.fade_timer = 0
         self.speed = 5
         self.hp = 5
+        self.dead = False
+        self.time_since_death = 0
         self.hit_time = 0
+        self.cant_get_hit = False
         self.vel = pg.Vector2(0,0)
         self.accel = pg.Vector2(0,0)
         self.rnd_timer = 0
@@ -18,13 +21,25 @@ class Player:
         self.surf = pg.surface.Surface((85,85)).convert_alpha()
         self.surf.set_alpha(255 * (1-self.opacity))
 
-    def SpawnIn(self):
-        self.fade_timer = 1 
+    def Spawn(self):
+        self.fade_timer = 1
+        self.opacity = 0
+        self.dead = False
+        self.time_since_death = 0
+        self.cant_get_hit = False
+        self.hp = 5
 
     def Update(self, dt, keys, entity_manager, particle_manager):
+        
+        if self.dead:
+            self.time_since_death += dt
+
         self.rnd_timer+=dt
         self.reload -= dt
-        self.hit_time = max(self.hit_time-dt, 0)
+        if self.cant_get_hit:
+            self.hit_time = 0
+        else:
+            self.hit_time = max(self.hit_time-dt, 0)
         if self.fade_timer > 0:
             self.fade_timer = max(self.fade_timer-dt, 0)
             self.opacity = 1-self.fade_timer
@@ -59,7 +74,7 @@ class Player:
         if keys[pg.K_s]:
             self.accel.y = 1
         if self.accel.x*self.accel.y != 0:
-            self.accel /= 1+0.3*(dt*60)**2
+            self.accel /= 1+0.3*(dt*60)
 
         self.vel += self.accel*60*dt
         if self.vel.x > 8:
@@ -81,6 +96,13 @@ class Player:
                 self.reload = 0.4
                 entity_manager.CreatePlayerBullet(self.pos + pg.Vector2(37,37), self.vel)
 
+        if self.hp <= 0 and not self.dead:
+            self.dead = True
+            particle_manager.ChangeStarSpeed(0.6, 1)
+        if self.hp <= 0 and self.hit_time < 0.1 and self.hit_time > 0:
+            self.cant_get_hit = True
+            particle_manager.CreateDeathSparks(self.pos +pg.Vector2(35,35), self.vel, True)
+
         
         self.pos.x = min(1900-75,max(20, self.pos.x+self.vel.x*dt*60))
         self.pos.y = min(1060-75,max(150, self.pos.y+self.vel.y*dt*60))
@@ -100,7 +122,7 @@ class Player:
         return min(1,((math.sin(self.rnd_timer+k)+1)/2+2)/3)
 
     def Draw(self,screen):
-        if self.opacity > 0:
+        if self.opacity > 0 and (self.hp >0 or self.hit_time > 0.1):
             self.surf.fill((0,0,0,0))
             #pg.draw.rect(self.surf, (255,245,245), pg.Rect(0,0, 75,75), 2, 0,35,35,0)
             pg.draw.circle(self.surf, (255,240,240,60), self.R(37,37,0.5), 20.1*self.P(self.rnd_timer*6)**0.5)

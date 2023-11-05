@@ -137,7 +137,7 @@ class EnemyBurstBullet(EnemyBullet):
         if self.timer > self.lifetime:
             self.remove = True
         self.pos += self.vel*dt*60
-        self.vel /= 1+.005*(dt*60)**2
+        self.vel /= 1+.005*(dt*60)
 
     def Draw(self, screen):
         pg.draw.circle(screen, (100,100,150), self.pos, 8)
@@ -158,8 +158,8 @@ class EnemyBolaBullet:
         self.vel2 = pg.Vector2(rnd.uniform(-3,3),rnd.uniform(-1,1))
 
     def Collide(self, rect):
-        for i in range(11):
-            if rect.collidepoint(self.pos + (self.pos2-self.pos)/10*i):
+        for i in range(17):
+            if rect.collidepoint(self.pos + (self.pos2-self.pos)/16*i):
                 return True
         return False
 
@@ -176,9 +176,9 @@ class EnemyBolaBullet:
             self.remove = True
         self.pos += (self.vel+self.joint_vel)*dt*60
         self.pos2 += (self.vel2+self.joint_vel)*dt*60
-        self.vel /= 1+.01*(dt*60)**2
-        self.joint_vel.x /= 1+.02*(dt*60)**2
-        self.vel2 /= 1+.01*(dt*60)**2
+        self.vel /= 1+.01*(dt*60)
+        self.joint_vel.x /= 1+.02*(dt*60)
+        self.vel2 /= 1+.01*(dt*60)
 
     def Draw(self, screen):
         pg.draw.circle(screen, (70,70,150), self.pos, 8)

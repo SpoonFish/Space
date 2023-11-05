@@ -1,5 +1,6 @@
 import pygame as pg
 import math
+import Graphics
 
 pg.font.init()
 
@@ -26,7 +27,15 @@ class GuiManager:
             self.buttons_active = False
         else:
             self.opacity = 1
-            self.buttons_active = False
+            self.buttons_active = True
+
+    def LoadMenu(self, menu):
+        self.buttons.clear()
+        self.buttons_active = True
+        match menu:
+            case "game_over":
+                self.buttons.append(Graphics.gui.Button(pg.Rect(1920/2-210,1080/2+20, 380, 80), "PLAY AGAIN", (255,255,255), (255,255,255), "play"))
+
     def SetFallingText(self, text):
         self.falling_text.text = font.render(text, True, (60,50,50))
         self.falling_text.y = -50
@@ -39,12 +48,14 @@ class GuiManager:
 
             if self.fade_type == "out":
                 self.opacity = 1-(self.fade_timer/self.fade_max)
-                print(self.opacity)
             else:
                 self.opacity = (self.fade_timer/self.fade_max)
 
-    def Draw(self, screen, player_hp):
+    def DrawBackground(self, screen, player_hp):
         self.life_counter.Draw(screen, player_hp, self.timer)
+        self.falling_text.Draw(screen)
+
+    def Draw(self, screen):
         for button in self.buttons:
             button.Draw(screen, self.opacity)
 

@@ -43,7 +43,7 @@ class Enemy:
                 self.hp -= 1
 
         if self.hp <= 0 and self.hit_time < 0.1:
-            particle_manager.CreateDeathSparks(self.pos +pg.Vector2(self.width/2,self.height/2))
+            particle_manager.CreateDeathSparks(self.pos +pg.Vector2(self.width/2,self.height/2), self.vel)
             self.remove = True
 
 
@@ -150,7 +150,7 @@ class DasherEnemy(Enemy):
                 self.vel = pg.Vector2(0,0)
                 self.target_pos = pg.Vector2(rnd.randint(0,1920),rnd.randint(0,1080))
                 self.target_direction = self.AngleToPoint(self.target_pos)
-            self.vel /= 1+.01*(dt*60)**2
+            self.vel /= 1+.01*(dt*60)
         self.pos += self.vel *60*dt
 
 
@@ -194,7 +194,7 @@ class ShooterEnemy(Enemy):
     def UniqueUpdate(self, dt, entity_manager, particle_manager):
         self.shoot_time -= dt
         if self.stage == 1:
-            self.vel /= 1+.01*(dt*60)**2
+            self.vel /= 1+.01*(dt*60)
             if self.vel.y < 0.1:
                 self.stage = 2
         elif self.stage == 2:
@@ -456,7 +456,7 @@ class LauncherEnemy(Enemy):
                 self.vel = pg.Vector2(0,0)
                 self.target_pos = pg.Vector2(rnd.randint(0,1920),rnd.randint(0,1080))
                 self.target_direction = self.AngleToPoint(self.target_pos)
-            self.vel /= 1+.012*(dt*60)**2
+            self.vel /= 1+.012*(dt*60)
         self.pos += self.vel *60*dt
 
 
@@ -496,7 +496,7 @@ class AsteroidEnemy(Enemy):
         self.particle_time = 0.1
         self.size = (width+height)//2
         if vel == None:
-            self.vel = pg.Vector2(rnd.uniform(.5,5.5),rnd.uniform(-1,3))*(80/(self.size/4+60))*2
+            self.vel = pg.Vector2(rnd.uniform(.5,5.5),rnd.uniform(-1,3))*(80/(self.size/4+60))
         else:
             self.vel = pg.Vector2(vel.x,vel.y)
             

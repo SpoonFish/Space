@@ -13,18 +13,16 @@ class WaveData:
 WAVES = {
     0: WaveData([],False),
     1: WaveData([
-        [(8,0), MonsterData("bola",10)],
-        [(10,0), MonsterData("burster",2)],
-        [(3,0), MonsterData("bola",10)],
-    ],
-    5
+        [(3,0), MonsterData("shooter",2)],
+        [(6,0), MonsterData("dasher",2)],
+        [(9,0), MonsterData("dasher",2)],
+    ]
     ),
     2: WaveData([
-        [(3,0), MonsterData("shooter",2)],
-        [(4,0), MonsterData("dasher",2)],
-        [(10,0), MonsterData("burster",3)],
-        [(8,0), MonsterData("dasher",2)],
-        [(9,0), MonsterData("shooter",2)],
+        [(3,0), MonsterData("shooter",3)],
+        [(4,0), MonsterData("dasher",3)],
+        [(9,0), MonsterData("dasher",3)],
+        [(8,0), MonsterData("shooter",3)],
     ]),
     3: WaveData([
         [(4,0), MonsterData("burster",3)],
@@ -32,14 +30,10 @@ WAVES = {
         [(8,0), MonsterData("bola",3)],
     ]),
     4: WaveData([
-        [(1,0), MonsterData("star",2)],
-        [(2,0), MonsterData("star",2)],
         [(3,0), MonsterData("star",2)],
-        [(4,0), MonsterData("star",2)],
-        [(8,0), MonsterData("star",2)],
+        [(4,0), MonsterData("launcher",2)],
+        [(8,0), MonsterData("shooter",2)],
         [(9,0), MonsterData("star",2)],
-        [(10,0), MonsterData("star",2)],
-        [(11,0), MonsterData("star",2)],
     ]),
     5: WaveData([
         [(3,0), MonsterData("shooter",20)],

@@ -11,6 +11,7 @@ class EntityManager:
         self.enemy_projectiles = []
         self.enemies = []
         self.asteroid_time = 0
+        self.game_over = False
         self.current_wave = 0
         self.wave_timer = 2
         self.player = Entities.player.Player()
@@ -29,6 +30,8 @@ class EntityManager:
         self.player_projectiles.append(Entities.projectiles.PlayerBullet(pos, vel))
 
     def SummonWave(self, wave_num, gui_manager):
+        self.enemies.clear()
+        self.enemy_projectiles.clear()
         self.current_wave = wave_num
         gui_manager.SetFallingText(f"WAVE {wave_num}")
         wave = Data.monster_data.WAVES[wave_num]
@@ -89,13 +92,13 @@ class EntityManager:
                 self.wave_timer = 5
                 self.SummonWave(self.current_wave + 1, gui_manager)
     def IsWaveOver(self) -> bool:
-        if Data.monster_data.WAVES[self.current_wave].asteroid_rate > 0:
+        if len(self.enemies) > 0 or Data.monster_data.WAVES[self.current_wave].asteroid_rate > 0:
             for enemy in self.enemies:
                 if not isinstance(enemy, Entities.enemies.AsteroidEnemy):
                     return False
             return True
         else:
-            return len(self.enemies) == 0
+            return True
     def Draw(self, screen):
         for projectile in self.player_projectiles:
             projectile.Draw(screen)

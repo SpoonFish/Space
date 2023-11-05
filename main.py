@@ -6,6 +6,7 @@ import Entities.player
 import Entities.entity_manager
 import Entities.enemies
 import Graphics.gui
+import copy
 
 
 #boiler plate usual stuff yk
@@ -21,8 +22,8 @@ font = pg.font.SysFont("sys", 80)
 gui_manager = Graphics.gui.GuiManager()
 particle_manager = Graphics.particle.ParticleManager()
 entity_manager = Entities.entity_manager.EntityManager()
-gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-190,height/2-40, 380, 80), "PLAY", (255,255,255), (255,255,255), "play"))
-timer3 = 0
+gui_manager.buttons.append(Graphics.gui.Button(pg.Rect(width/2-210,height/2-40, 380, 80), "PLAY", (255,255,255), (255,255,255), "play"))
+game_speed = 1
 timer = 0
 for i in range(60):
     bright = rnd.uniform(0,1)
@@ -36,18 +37,15 @@ for i in range(60):
     ))
 while running:
     dt = clock.tick(1000)/1000
+    real_dt = dt
+    dt*=game_speed
     timer += dt
-    timer3 += dt
-    
+
     for event in pg.event.get():
         if event.type == pg.QUIT:
             running = False
 
     keys = pg.key.get_pressed()
-   # if keys[pg.K_w]:
-    #    particle_manager.star_speed += dt
-   # if keys[pg.K_s]:
-   #     particle_manager.star_speed = max(0.00000001, particle_manager.star_speed-dt)
 
     if timer > 0.06/particle_manager.star_speed:
         bright = rnd.uniform(0,0.7)
@@ -61,33 +59,41 @@ while running:
 
         ))
 
-    if timer3 > 2:
-        timer3 -= 4
-        #entity_manager.enemies.append(Entities.enemies.DasherEnemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 60, 60))
-        
-        #entity_manager.enemies.append(Entities.enemies.Enemy(pg.Vector2(rnd.randint(0,width),-40), "dasher", 3, 40, 40))
-
     screen.fill("black")
+
+    if entity_manager.player.dead:
+        game_speed = max(0,game_speed-dt/3)
+        if game_speed < 0.01:
+            game_speed = 0
+
+    if entity_manager.player.cant_get_hit == True and not entity_manager.game_over:
+        entity_manager.game_over = True
+        gui_manager.SetFallingText("GAME OVER")
+    if entity_manager.player.time_since_death > 2:
+        entity_manager.player.time_since_death = -10
+        gui_manager.LoadMenu("game_over")
+        gui_manager.Fade(1.5, "in")
 
     particle_manager.Update(dt)
     entity_manager.player.Update(dt, keys, entity_manager, particle_manager)
     entity_manager.Update(dt, particle_manager, gui_manager)
     gui_manager.Update(dt)
     for button in gui_manager.buttons:
-        event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], dt, gui_manager.buttons_active)
+        event = button.Update(pg.mouse.get_pos(), pg.mouse.get_pressed()[0], real_dt, gui_manager.buttons_active)
 
         if event != None:
             match event:
                 case "play":
+                    game_speed = 1
                     gui_manager.Fade(0.5, "out")
                     particle_manager.ChangeStarSpeed(3, 2)
-                    entity_manager.player.SpawnIn()
+                    entity_manager.player.Spawn()
                     entity_manager.SummonWave(1, gui_manager)
 
     particle_manager.Draw(screen)
-    gui_manager.falling_text.Draw(screen)
+    gui_manager.DrawBackground(screen, entity_manager.player.hp)
     entity_manager.Draw(screen)
-    gui_manager.Draw(screen, entity_manager.player.hp)
+    gui_manager.Draw(screen)
 
 
 

@@ -23,15 +23,38 @@ class ParticleManager:
 
             self.star_speed = (self.new_speed-self.old_speed)*math.pow(1-self.speed_change_timer/self.max_time, 1.3)+self.old_speed
 
-    def CreateDeathSparks(self, pos):
-        for _ in range(rnd.randint(20,25)):
-            self.particles.append(Particle(pos,
-                                            pg.Vector2(rnd.uniform(-2,2),rnd.uniform(-1,1)),
-                                            "spark",
-                                            2,
-                                            (255,255,255,255),
-                                            rnd.uniform(0.5,0.7),
-                                            (55,55,255,0)))
+    def CreateDeathSparks(self, pos, influence_vel, player = False):
+        if not player:
+            for _ in range(rnd.randint(20,25)):
+                self.particles.append(Particle(pos,
+                                                pg.Vector2(rnd.uniform(-2,2),rnd.uniform(-1,1))+influence_vel/2,
+                                                "spark",
+                                                2,
+                                                (255,255,255,255),
+                                                rnd.uniform(0.5,0.7),
+                                                (55,55,255,0)))
+        else:
+            for _ in range(rnd.randint(30,35)):
+                vel = pg.Vector2(rnd.uniform(-3,3),rnd.uniform(-3,3))
+                vel = vel/vel.magnitude()*rnd.uniform(0.5,3)
+                self.particles.append(Particle(pos,
+                                                vel+influence_vel/2,
+                                                "big_spark",
+                                                2,
+                                                (255,55,55,255),
+                                                rnd.uniform(0.3,0.7),
+                                                (255,0,0,0)))
+            for _ in range(rnd.randint(30,35)):
+                vel = pg.Vector2(rnd.uniform(-6,6),rnd.uniform(-6,6))
+                vel = vel/vel.magnitude()*rnd.uniform(0.5,3)
+                self.particles.append(Particle(pos,
+                                                vel+influence_vel/2,
+                                                "big_spark",
+                                                2,
+                                                (255,155,155,255),
+                                                rnd.uniform(0.5,1.7),
+                                                (255,50,50,0)))
+
     def CreateHitSparks(self, pos):
         for _ in range(rnd.randint(10,15)):
             self.particles.append(Particle(pos,
@@ -92,6 +115,8 @@ class Particle:
             pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel*2.5, self.size)
         elif (self.shape == "spark"):
             pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel, self.size)
+        elif (self.shape == "big_spark"):
+            pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel*2, self.size)
         elif (self.shape == "star"):
             pg.draw.line(screen, self.colour, self.pos, self.pos-self.vel, 2)
             pg.draw.line(screen, (self.colour[0]/2,self.colour[1]/2,self.colour[2]/2), self.pos-self.vel, self.pos-self.vel*2*star_speed, 2)
