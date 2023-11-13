@@ -84,6 +84,7 @@ while running:
         if event != None:
             match event:
                 case "play":
+                    entity_manager.game_over = False
                     game_speed = 1
                     gui_manager.Fade(0.5, "out")
                     particle_manager.ChangeStarSpeed(3, 2)

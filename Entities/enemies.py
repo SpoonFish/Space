@@ -2,6 +2,7 @@ import pygame as pg
 import random as rnd
 import math
 import Graphics.particle
+import Entities.powerups
 
 RANDOM_NUMS = [5.5,5.9,6.7,8.7,6.5,9.4,14.3,12.5,11.1,10,13.3,13.4,15.1]
 
@@ -36,14 +37,15 @@ class Enemy:
         self.rnd_timer += dt
 
         for projectile in entity_manager.player_projectiles:
-            if self.hit_time == 0 and pg.Rect(self.pos.x, self.pos.y, self.width, self.height).collidepoint(projectile.pos):
+            if self.hit_time == 0 and projectile.Collide(pg.Rect(self.pos.x, self.pos.y, self.width, self.height)):
                 projectile.remove = True
-                self.hit_time = 0.3
+                self.hit_time = entity_manager.player.bullet_hit_time
                 particle_manager.CreateHitSparks(projectile.pos)
                 self.hp -= 1
 
         if self.hp <= 0 and self.hit_time < 0.1:
             particle_manager.CreateDeathSparks(self.pos +pg.Vector2(self.width/2,self.height/2), self.vel)
+            entity_manager.powerups.append(Entities.powerups.PowerUp("shield", self.pos+pg.Vector2(self.width/2,self.height/2)))
             self.remove = True
 
 
@@ -96,12 +98,11 @@ class Enemy:
         pg.draw.circle(self.surf, (255,255,255), self.R(self.width/2,self.height/2,0.5), 6.1*math.sqrt(self.P(self.rnd_timer*3)))
         self.DrawHp(screen)
 
-
         self.surf.set_alpha(255)
         screen.blit(self.surf, self.pos-pg.Vector2(self.width*0.25,self.width*0.25))
 
 class DasherEnemy(Enemy):
-    def __init__(self, pos, hp, width=50,height=50) -> None:
+    def __init__(self, pos, hp, width=70,height=70) -> None:
         super().__init__(pos, hp, width,height)
         self.range = 300
         self.direction = 0
@@ -182,7 +183,7 @@ class DasherEnemy(Enemy):
 
 
 class ShooterEnemy(Enemy):
-    def __init__(self, pos, hp, width=60,height=60) -> None:
+    def __init__(self, pos, hp, width=80,height=80) -> None:
         super().__init__(pos, hp, width,height)
         self.range = 300
         self.direction = 0
@@ -234,7 +235,7 @@ class ShooterEnemy(Enemy):
         screen.blit(self.surf, self.pos-pg.Vector2(self.width*0.25,self.width*0.25))
 
 class BursterEnemy(Enemy):
-    def __init__(self, pos, hp, width=70,height=70) -> None:
+    def __init__(self, pos, hp, width=90,height=90) -> None:
         super().__init__(pos, hp, width,height)
         self.range = 300
         self.burst_cooldown = 0
@@ -291,7 +292,7 @@ class BursterEnemy(Enemy):
 
         
 class BolaEnemy(Enemy):
-    def __init__(self, pos, hp, width=100,height=50) -> None:
+    def __init__(self, pos, hp, width=110,height=60) -> None:
         super().__init__(pos, hp, width,height)
         self.shoot_time = 2
         self.vel = pg.Vector2(rnd.uniform(2,3), 0)
@@ -338,7 +339,7 @@ class BolaEnemy(Enemy):
 
         
 class StarEnemy(Enemy):
-    def __init__(self, pos, hp, width=80,height=80) -> None:
+    def __init__(self, pos, hp, width=90,height=90) -> None:
         super().__init__(pos, hp, width,height)
         self.direction = 0
         self.vel = pg.Vector2(0,0)
@@ -388,7 +389,7 @@ class StarEnemy(Enemy):
 
 
 class LauncherEnemy(Enemy):
-    def __init__(self, pos, hp, width=70,height=70) -> None:
+    def __init__(self, pos, hp, width=90,height=90) -> None:
         super().__init__(pos, hp, width,height)
         self.range = 700
         self.direction = 0

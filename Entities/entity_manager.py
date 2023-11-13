@@ -10,6 +10,7 @@ class EntityManager:
         self.player_projectiles = []
         self.enemy_projectiles = []
         self.enemies = []
+        self.powerups = []
         self.asteroid_time = 0
         self.game_over = False
         self.current_wave = 0
@@ -26,8 +27,11 @@ class EntityManager:
         self.enemies.append(Entities.enemies.AsteroidEnemy(pos, hp, size+rnd.randint(-10,10), size+rnd.randint(-25,5), vela))
 
 
-    def CreatePlayerBullet(self, pos, vel):
-        self.player_projectiles.append(Entities.projectiles.PlayerBullet(pos, vel))
+    def CreatePlayerBullet(self, pos, vel, type="normal"):
+        if type == "bola":
+            self.player_projectiles.append(Entities.projectiles.PlayerBolaBullet(pos, vel))
+        else:
+            self.player_projectiles.append(Entities.projectiles.PlayerBullet(pos, vel))
 
     def SummonWave(self, wave_num, gui_manager):
         self.enemies.clear()
@@ -73,7 +77,7 @@ class EntityManager:
                 self.asteroid_time = rnd.uniform(1,2) / Data.monster_data.WAVES[self.current_wave].asteroid_rate
                 self.CreateAsteroid(rnd.choice([pg.Vector2(rnd.randint(-100,1700),-60),pg.Vector2(-100,rnd.randint(-60,800))]), rnd.randint(40,120), )
         for projectile in self.player_projectiles:
-            projectile.Update(dt, particle_manager)
+            projectile.Update(dt, particle_manager, self)
             if projectile.remove:
                 self.player_projectiles.remove(projectile)
         for projectile in self.enemy_projectiles:
@@ -85,6 +89,11 @@ class EntityManager:
             enemy.Update(dt, self, particle_manager)
             if enemy.remove:
                 self.enemies.remove(enemy)
+
+        for powerup in self.powerups:
+            powerup.Update(dt, particle_manager)
+            if powerup.remove:
+                self.powerups.remove(powerup)
 
         if self.IsWaveOver() and self.current_wave > 0:
             self.wave_timer -= dt
@@ -108,5 +117,7 @@ class EntityManager:
 
         for enemy in self.enemies:
             enemy.Draw(screen)
+        for powerup in self.powerups:
+            powerup.Draw(screen)
 
         self.player.Draw(screen)
